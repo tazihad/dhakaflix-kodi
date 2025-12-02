@@ -1,23 +1,19 @@
 #!/usr/bin/env python
-
-# This script zips add-on folders and generates the addons.xml and addons.xml.md5 files for a Kodi repository.
-# It should be run from the root directory of your repository.
+# Updated script for robust Kodi repository generation
 
 import os
 import shutil
 import hashlib
 import zipfile
-import re
+import xml.etree.ElementTree as ET
 
 class Generator:
     """
     Generates a new addons.xml file from each add-on's addon.xml file
-    and creates a new addons.xml.md5 hash file. Must be run from the root
-    of the checked-out repo. Only handles single-depth folder structure.
+    and creates a new addons.xml.md5 hash file.
     """
 
     def __init__(self):
-        # The directory where zipped add-ons and XML index files will be stored
         self.ADDONS_DIR = "zips"
 
         if not os.path.exists(self.ADDONS_DIR):
@@ -32,65 +28,64 @@ class Generator:
         Generates the master addons.xml file from the individual addon.xml files.
         """
         print("\nGenerating addons.xml...")
+
         # Start the master XML file structure
-        addons_xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<addons>\n'
-        
-        # Get a list of all folders in the current directory (should be add-ons)
-        addons = os.listdir(".")
-        
+        addons_xml = ET.Element('addons')
+
         # Loop through each folder to find add-ons
-        for addon_id in addons:
-            # Ignore the zips folder, docs, and hidden files
-            if os.path.isdir(addon_id) and not addon_id.startswith('.') and addon_id != self.ADDONS_DIR:
-                
-                addon_xml_path = os.path.join(addon_id, "addon.xml")
-                
-                if os.path.exists(addon_xml_path):
-                    try:
-                        print(f"  Processing {addon_id}...")
-                        
-                        # Read the addon.xml file
-                        with open(addon_xml_path, "r", encoding="utf-8") as f:
-                            xml_lines = f.readlines()
+        for addon_id in sorted(os.listdir(".")):
 
-                        addon_xml_content = ""
-                        version = None
-                        
-                        # Loop through lines to find the version and extract the XML content
-                        for line in xml_lines:
-                            # Skip XML preamble and unnecessary lines
-                            if '<?xml' in line or '<addon-dependency>' in line:
-                                continue
+            addon_xml_path = os.path.join(addon_id, "addon.xml")
 
-                            # Extract version number
-                            if 'version="' in line and version is None:
-                                version_match = re.search(r'version="(.+?)"', line)
-                                if version_match:
-                                    version = version_match.group(1)
+            # Check if it's a directory and contains an addon.xml
+            if os.path.isdir(addon_id) and addon_id != self.ADDONS_DIR and os.path.exists(addon_xml_path):
 
-                            # Append the line to the collective XML, preserving indentation
-                            addon_xml_content += line.rstrip() + "\n"
-                        
-                        # Add the addon XML content to the master XML structure
-                        addons_xml += addon_xml_content.strip() + "\n\n"
-                        
-                        # Create the zip file for the add-on
+                try:
+                    print(f"  Processing {addon_id}...")
+
+                    # Parse the individual addon.xml file
+                    tree = ET.parse(addon_xml_path)
+                    root = tree.getroot()
+
+                    # Ensure the root element is <addon> and has an 'id' and 'version'
+                    if root.tag == 'addon':
+                        version = root.get('version')
+
                         if version:
+                            # Add the entire <addon> element to the master XML structure
+                            addons_xml.append(root)
+
+                            # Create the zip file for the add-on
                             self._create_zip(addon_id, version)
                         else:
-                            print(f"    WARNING: Could not find version for {addon_id}. Skipping zip creation.")
+                            print(f"    WARNING: Skipping {addon_id}. Missing 'version' attribute in addon.xml.")
+                    else:
+                        print(f"    WARNING: Skipping {addon_id}. addon.xml does not start with <addon> tag.")
 
-                    except Exception as e:
-                        print(f"    ERROR: Excluding {addon_id} due to processing error: {e}")
+                except Exception as e:
+                    print(f"    ERROR: Excluding {addon_id} due to processing error: {e}")
 
-        # Close the master XML structure
-        addons_xml += '</addons>\n'
-        
         # Write the final addons.xml file to the zips directory
-        with open(os.path.join(self.ADDONS_DIR, "addons.xml"), "w", encoding="utf-8") as f:
-            f.write(addons_xml)
-        
-        print("addons.xml written.")
+        # We need to manually add the XML declaration and format the output
+        output_xml_path = os.path.join(self.ADDONS_DIR, "addons.xml")
+        try:
+            # Use to_xml to format the output with the XML declaration
+            with open(output_xml_path, "wb") as f:
+                f.write(ET.tostring(addons_xml, encoding='utf-8', xml_declaration=True))
+
+            # Post-processing to add standalone="yes" for Kodi compatibility
+            with open(output_xml_path, "r", encoding='utf-8') as f:
+                content = f.read()
+            content = content.replace("<?xml version='1.0' encoding='utf-8'?>", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>', 1)
+
+            with open(output_xml_path, "w", encoding='utf-8') as f:
+                f.write(content)
+
+            print("addons.xml written.")
+
+        except Exception as e:
+            print(f"ERROR: Failed to write addons.xml: {e}")
+
 
     def _create_zip(self, addon_id, version):
         """
@@ -100,12 +95,17 @@ class Generator:
         zip_path = os.path.join(self.ADDONS_DIR, zip_filename)
 
         print(f"    Creating {zip_filename}...")
-        
-        # Check if the zip already exists and is current.
+
+        # Check if the zip already exists and is current (simple timestamp check)
         if os.path.exists(zip_path):
-            # Check if the existing zip is newer than the source folder (simple check)
             zip_time = os.path.getmtime(zip_path)
-            source_time = os.path.getmtime(addon_id)
+            source_time = os.path.getmtime(os.path.join(addon_id, "addon.xml")) # Check addon.xml timestamp
+
+            # Check other files in the directory for changes
+            for root, dirs, files in os.walk(addon_id):
+                for name in files:
+                    source_time = max(source_time, os.path.getmtime(os.path.join(root, name)))
+
             if source_time < zip_time:
                 print(f"    Skipping: {zip_filename} is up to date.")
                 return
@@ -115,22 +115,22 @@ class Generator:
         try:
             # Create the zip file
             zf = zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED)
-            
+
             # Walk through the add-on directory
             for root, dirs, files in os.walk(addon_id):
                 # Exclude hidden files/folders and specific source files
-                dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ('_pycache__')]
-                
+                dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ('__pycache__', '.git', '.github')]
+
                 for file in files:
                     if not file.startswith('.') and not file.endswith('.pyc'):
                         full_path = os.path.join(root, file)
-                        # Add the file to the zip, preserving the add-on folder as the root of the zip
-                        archive_name = os.path.join(root, file)
+                        # The archive name MUST be the addon_id folder at the root of the zip
+                        archive_name = os.path.join(addon_id, os.path.relpath(full_path, addon_id))
                         zf.write(full_path, archive_name)
-            
+
             zf.close()
             print(f"    {zip_filename} created successfully.")
-            
+
         except Exception as e:
             print(f"    ERROR: Failed to create zip for {addon_id}: {e}")
             if os.path.exists(zip_path):
@@ -141,19 +141,19 @@ class Generator:
         Generates the MD5 hash file for the addons.xml file.
         """
         print("Generating addons.xml.md5...")
-        
+
         addons_xml_path = os.path.join(self.ADDONS_DIR, "addons.xml")
         md5_path = os.path.join(self.ADDONS_DIR, "addons.xml.md5")
-        
+
         try:
             with open(addons_xml_path, 'rb') as f:
                 md5_hash = hashlib.md5(f.read()).hexdigest()
-            
+
             with open(md5_path, 'w') as f:
                 f.write(md5_hash)
-            
+
             print("addons.xml.md5 written.")
-            
+
         except Exception as e:
             print(f"ERROR: Failed to create md5 hash: {e}")
 

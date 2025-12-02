@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addons>
-<addon id="plugin.video.dhakaflix" name="DhakaFlix media" version="1.0.0" provider-name="tazihad">
+<addons><addon id="plugin.video.dhakaflix" name="DhakaFlix media" version="1.0.0" provider-name="tazihad">
     <requires>
-        <import addon="xbmc.python" version="3.0.0"/>
-        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="xbmc.python" version="3.0.0" />
+        <import addon="script.module.requests" version="2.9.1" />
     </requires>
     <extension point="xbmc.python.pluginsource" library="main.py">
         <provides>video</provides>
@@ -17,9 +16,7 @@
             <fanart>fanart.jpg</fanart>
         </assets>
     </extension>
-</addon>
-
-<addon id="repository.tazihad.dhakaflix" name="DhakaFlix Repository" version="1.0.0" provider-name="tazihad">
+</addon><addon id="repository.tazihad.dhakaflix" name="DhakaFlix Repository" version="1.0.0" provider-name="tazihad">
     <extension point="xbmc.addon.repository" name="DhakaFlix Addon Updates">
         <dir>
             <info compressed="false">https://raw.githubusercontent.com/tazihad/dhakaflix-kodi/main/zips/addons.xml</info>
@@ -36,6 +33,4 @@
             <fanart>fanart.jpg</fanart>
         </assets>
     </extension>
-</addon>
-
-</addons>
+</addon></addons>
