@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addons>
+<addon id="plugin.video.dhakaflix" name="DhakaFlix" version="1.0.0" provider-name="tazihad">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">DhakaFlix Local Streamer</summary>
+        <description lang="en">DhakaFlix streamer for Movies and TV Series.</description>
+        <platform>all</platform>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>
+
+<addon id="repository.tazihad.dhakaflix" name="DhakaFlix Official Repository" version="1.0.0" provider-name="tazihad">
+    <extension point="xbmc.addon.repository" name="DhakaFlix Addon Updates">
+        <dir>
+            <info compressed="false">https://raw.githubusercontent.com/tazihad/dhakaflix-kodi/main/zips/addons.xml</info>
+            <checksum>https://raw.githubusercontent.com/tazihad/dhakaflix-kodi/main/zips/addons.xml.md5</checksum>
+            <datadir zip="true">https://raw.githubusercontent.com/tazihad/dhakaflix-kodi/main/zips/</datadir>
+        </dir>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>The official repository for the DhakaFlix Kodi Add-on.</summary>
+        <description>Provides automatic updates for the DhakaFlix video add-on.</description>
+        <platform>all</platform>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>
+
+</addons>
