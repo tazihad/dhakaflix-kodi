@@ -2,13 +2,14 @@
 <addon id="plugin.video.dhakaflix" name="DhakaFlix media" version="1.0.0" provider-name="tazihad">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
-        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="script.module.requests" version="2.31.0"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="main.py">
         <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
         <summary lang="en">DhakaFlix Local Streamer</summary>
+        <summary lang="bn">ঢাকাফ্লিক্স লোকাল স্ট্রিমিং</summary>
         <description lang="en">DhakaFlix streamer for Movies and TV Series.</description>
         <platform>all</platform>
         <assets>

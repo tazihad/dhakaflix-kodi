@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# Updated script for robust Kodi repository generation
+# Final script updated to create the nested folder structure inside /zips/
+# Example: zips/plugin.video.dhakaflix/plugin.video.dhakaflix-1.0.0.zip
 
 import os
 import shutil
@@ -14,6 +15,7 @@ class Generator:
     """
 
     def __init__(self):
+        # The directory where zipped add-ons and XML index files are stored
         self.ADDONS_DIR = "zips"
 
         if not os.path.exists(self.ADDONS_DIR):
@@ -37,7 +39,7 @@ class Generator:
 
             addon_xml_path = os.path.join(addon_id, "addon.xml")
 
-            # Check if it's a directory and contains an addon.xml
+            # Check if it's a valid add-on directory
             if os.path.isdir(addon_id) and addon_id != self.ADDONS_DIR and os.path.exists(addon_xml_path):
 
                 try:
@@ -47,7 +49,6 @@ class Generator:
                     tree = ET.parse(addon_xml_path)
                     root = tree.getroot()
 
-                    # Ensure the root element is <addon> and has an 'id' and 'version'
                     if root.tag == 'addon':
                         version = root.get('version')
 
@@ -55,18 +56,15 @@ class Generator:
                             # Add the entire <addon> element to the master XML structure
                             addons_xml.append(root)
 
-                            # Create the zip file for the add-on
+                            # Create the zip file for the add-on in the NEW nested folder
                             self._create_zip(addon_id, version)
                         else:
                             print(f"    WARNING: Skipping {addon_id}. Missing 'version' attribute in addon.xml.")
-                    else:
-                        print(f"    WARNING: Skipping {addon_id}. addon.xml does not start with <addon> tag.")
 
                 except Exception as e:
                     print(f"    ERROR: Excluding {addon_id} due to processing error: {e}")
 
         # Write the final addons.xml file to the zips directory
-        # We need to manually add the XML declaration and format the output
         output_xml_path = os.path.join(self.ADDONS_DIR, "addons.xml")
         try:
             # Use to_xml to format the output with the XML declaration
@@ -89,19 +87,27 @@ class Generator:
 
     def _create_zip(self, addon_id, version):
         """
-        Creates a zip file for the given add-on.
+        Creates a zip file for the given add-on, placing it in zips/[ADDON ID]/
         """
         zip_filename = f"{addon_id}-{version}.zip"
-        zip_path = os.path.join(self.ADDONS_DIR, zip_filename)
 
-        print(f"    Creating {zip_filename}...")
+        # --- NEW CODE START ---
+        # Define the path to the NEW nested folder: zips/addon_id/
+        nested_dir = os.path.join(self.ADDONS_DIR, addon_id)
+        if not os.path.exists(nested_dir):
+            os.makedirs(nested_dir)
 
-        # Check if the zip already exists and is current (simple timestamp check)
+        # Define the full zip path: zips/addon_id/addon_id-x.x.x.zip
+        zip_path = os.path.join(nested_dir, zip_filename)
+        # --- NEW CODE END ---
+
+        print(f"    Creating {zip_filename} inside {nested_dir}...")
+
+        # Check if the zip already exists and is current (based on timestamp)
         if os.path.exists(zip_path):
             zip_time = os.path.getmtime(zip_path)
-            source_time = os.path.getmtime(os.path.join(addon_id, "addon.xml")) # Check addon.xml timestamp
+            source_time = os.path.getmtime(os.path.join(addon_id, "addon.xml"))
 
-            # Check other files in the directory for changes
             for root, dirs, files in os.walk(addon_id):
                 for name in files:
                     source_time = max(source_time, os.path.getmtime(os.path.join(root, name)))
@@ -118,13 +124,11 @@ class Generator:
 
             # Walk through the add-on directory
             for root, dirs, files in os.walk(addon_id):
-                # Exclude hidden files/folders and specific source files
                 dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ('__pycache__', '.git', '.github')]
 
                 for file in files:
                     if not file.startswith('.') and not file.endswith('.pyc'):
                         full_path = os.path.join(root, file)
-                        # The archive name MUST be the addon_id folder at the root of the zip
                         archive_name = os.path.join(addon_id, os.path.relpath(full_path, addon_id))
                         zf.write(full_path, archive_name)
 

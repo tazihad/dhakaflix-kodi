@@ -8,7 +8,7 @@
         </dir>
     </extension>
     <extension point="xbmc.addon.metadata">
-        <summary>The official repository for the DhakaFlix Kodi Add-on.</summary>
+        <summary>Repository for the DhakaFlix Kodi Add-on.</summary>
         <description>Provides automatic updates for the DhakaFlix video add-on.</description>
         <platform>all</platform>
         <assets>
