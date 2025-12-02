@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="repository.tazihad.dhakaflix" name="DhakaFlix Official Repository" version="1.0.0" provider-name="tazihad">
+<addon id="repository.tazihad.dhakaflix" name="DhakaFlix Repository" version="1.0.0" provider-name="tazihad">
     <extension point="xbmc.addon.repository" name="DhakaFlix Addon Updates">
         <dir>
             <info compressed="false">https://raw.githubusercontent.com/tazihad/dhakaflix-kodi/main/zips/addons.xml</info>
