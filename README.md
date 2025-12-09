@@ -8,6 +8,11 @@
 
 The recommended installation method is via the **DhakaFlix Repository**. This ensures you automatically receive new features and bug fixes.
 
+### Video Tutorial
+<a href="https://youtu.be/ure0nuykLiQ" target="_blank">
+ <img src="https://img.youtube.com/vi/ure0nuykLiQ/maxresdefault.jpg" alt="How to use Dhakaflix addon in KODI" width="480" height="360" border="10" />
+</a>
+
 ### ⚠️ Prerequisite: Enable Unknown Sources
 
 Before installing, you must allow Kodi to load third-party add-ons.
