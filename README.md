@@ -66,8 +66,7 @@ Use this method if you prefer to download the file on a PC and transfer it via U
 Download the latest repository ZIP file to your device.
 
 **Latest Repository (v1.0.0):**
-* **Direct Download:** [repository.tazihad.dhakaflix-1.0.0.zip](https://github.com/tazihad/dhakaflix-kodi/releases/download/v1.0.0/repository.tazihad.dhakaflix-1.0.0.zip)
-* **Short Link:** [is.gd/dhkflx](https://is.gd/dhkflx)
+* **Direct Download:** [repository.tazihad.dhakaflix-1.0.0.zip](https://github.com/tazihad/dhakaflix-kodi/releases/download/v1.0.0/plugin.video.dhakaflix-1.0.0.zip)
 
 #### 2. Install the Repo and Addon
 1. From the Kodi home screen, go to **Add-ons**.
