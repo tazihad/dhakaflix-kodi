@@ -1,6 +1,8 @@
 # DhakaFlix Kodi Addon
 
-**DhakaFlix** is a video add-on for Kodi that provides access to Bangladeshi content.
+![Download Count](https://img.shields.io/github/downloads/tazihad/dhakaflix-kodi/total)
+
+**DhakaFlix** is a video add-on for Kodi that provides access to Bangladeshi content.  
 
 ---
 
